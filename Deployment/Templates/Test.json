@@ -18,8 +18,7 @@
   "variables": {
     "analysisServicesName": "[concat(resourceGroup().name, 'as')]",
     "SQLServerName": "[concat(resourceGroup().name, 'sql')]",
-    "AllowAzureIps": "[concat(resourceGroup().name, 'sql/AllowAllWindowsAzureIps')]",
-	"blobStorageName": "[concat(resourceGroup().name, 'storage')]",
+    "AllowAzureIps": "[concat(resourceGroup().name, 'sql/AllowAllWindowsAzureIps')]"
   },
   "resources": [
     {
@@ -63,28 +62,6 @@
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', variables('SQLServerName'))]"
       ]
-    },
-	{
-		"type": "Microsoft.Storage/storageAccounts",
-		"sku": {
-			"name": "LRS"
-		},
-		"kind": "BlobStorage",
-		"name": "[variables('blobStorageName')]",
-		"apiVersion": "2016-12-01",
-		"location": "[resourceGroup().location]",
-		"properties": {
-			"accessTier": "Cool",
-			"encryption": {
-				"services": {
-					"blob": {
-						"enabled": "false"
-					}
-				},
-				"keySource": "Microsoft.Storage"
-			},
-			"supportsHttpsTrafficOnly": "false"
-		}
-	}
+    }
   ]
 }
