@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "SQL Server Admin Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of SQL Server Administrator"
+      }
+    },
+    "SQL Server Admin Password": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for SQL Server Administrator"
+      }
+    }
+  },
+  "variables": {
+    "analysisServicesName": "[concat(resourceGroup().name, 'as')]",
+    "SQLServerName": "[concat(resourceGroup().name, 'sql')]",
+    "AllowAzureIps": "[concat(resourceGroup().name, 'sql/AllowAllWindowsAzureIps')]",
+	"blobStorageName": "[concat(resourceGroup().name, 'storage')]",
+  },
+  "resources": [
+    {
+      "comments": "Create Azure Analysis Services Instance",
+      "type": "Microsoft.AnalysisServices/servers",
+      "sku": {
+        "name": "D1",
+        "tier": "Development"
+      },
+      "name": "[variables('analysisServicesName')]",
+      "apiVersion": "2016-05-16",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {
+        "managedMode": 1
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "kind": "v12.0",
+      "name": "[variables('SQLServerName')]",
+      "apiVersion": "2014-04-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "administratorLogin": "[parameters('SQL Server Admin Name')]",
+        "administratorLoginPassword": "[parameters('SQL Server Admin Password')]",
+        "version": "12.0"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/firewallrules",
+      "kind": "v12.0",
+      "name": "[variables('AllowAzureIps')]",
+      "apiVersion": "2014-04-01-preview",
+      "location": "West US",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('SQLServerName'))]"
+      ]
+    },
+	{
+		"type": "Microsoft.Storage/storageAccounts",
+		"sku": {
+			"name": "LRS"
+		},
+		"kind": "BlobStorage",
+		"name": "[variables('blobStorageName')]",
+		"apiVersion": "2016-12-01",
+		"location": "[resourceGroup().location]",
+		"properties": {
+			"accessTier": "Cool",
+			"encryption": {
+				"services": {
+					"blob": {
+						"enabled": "false"
+					}
+				},
+				"keySource": "Microsoft.Storage"
+			},
+			"supportsHttpsTrafficOnly": "false"
+		}
+	}
+  ]
+}
