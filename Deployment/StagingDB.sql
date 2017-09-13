@@ -369,7 +369,3 @@ SELECT DISTINCT
 FROM dbo.StudentProfile
 WHERE [Current_Program] IS NOT NULL
 GO
-USE [master]
-GO
-ALTER DATABASE [HigherED_Staging] SET  READ_WRITE 
-GO
